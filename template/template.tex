@@ -1,0 +1,67 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{../cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy % *** Uncomment this line for the final submission
+
+\def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+\begin{document}
+	
+	%%%%%%%%% TITLE
+	\title{Modelling and Inference in Latent Dynamical Systems}
+	
+	\author{Neha Das\\
+		{\tt\small neha.das@tum.de}}
+	
+	\maketitle
+	%\thispagestyle{empty}
+	
+	
+	\section{Introduction}
+	Modelling sequential data and inferring their characteristics is central to a lot of interesting problems, including analysis and deconstruction of auditory sequences \cite{turner2010statistical}, prediction in sequential data such as video frames \cite{jayaraman2018time} and text \cite{xie2017neural}, and reinforcement learning applications \cite{deisenroth2011pilco}. While the last has been approached through both model-based and model-free techniques, learning a model of the environment has been showed to be more sample efficient \cite{atkeson1997comparison}. Although a few successful solutions have been proposed for relatively simpler environments and low dimensional observation spaces, scaling them to partially observed dynamical environments with complex transitions (such as interacting particles or switching dynamics) and high-dimensional observations (like images) in a principled manner remains a challenge. 
+	
+	This proposal strives to briefly discuss the characteristics desirable in the learned model of a dynamic system, the hurdles in incorporating those characteristics and possible directions including recently published approaches towards overcoming them.
+	
+	\section{Desirable Characteristics in the model of a dynamical system}
+	\begin{itemize}
+		\item \textbf{Incorporation of Latent Representation and Dynamics:} Many interesting dynamic systems have state spaces that are not directly observable or have high dimensional observations such as image sequences which, while easy to obtain, are highly correlated in the pixel (dimensional) space and often lie on much lower dimensional manifold. Incorporating such observations directly in the model's transition dynamics is hard. Many solutions \cite{karl2016deep, krishnan2015deep} thus assume the underlying graphical model to have a latent dynamical representation (e.g the State Space Models). The two major tasks then, are to learn this generative model, as well as infer the latent states from the indirect observations.
+		\item \textbf{Uncertainty Modelling:} Having a quantifiable measure of uncertainty of the model's outputs is essential to many applications, including data-efficient machine learning and high risk prediction applications such as medical diagnosis and autonomous driving. This uncertainty in outputs may stem from noisy observations (aleatoric uncertainty) and/or the parameters and the structure of the model (epistemic uncertainty) \cite{gal2016uncertainty}. Representation of both these uncertainty forms is a desirable characteristic in a dynamic system's model.
+		\item \textbf{Probabilistic prediction in state-space far into the future:} This is particularly significant for reinforcement learning tasks with long planning trajectories. While a Recurrent Neural Network can store the belief from previous observations and predict observations far into time using deterministic one-step prediction of observation and feedback, it fails to capture the uncertainties in the transition model.
+		\item \textbf{Interpretable/Disentangled latent-space representation:} Evaluation of inference models is easier when the latents are interpretable - i.e they can be mapped to some recognizable quantity. In recent experiments, disentanglement in the latent space has been shown to lead to more interpretability\cite{higgins2017beta, kim2018disentangling}. Disentangled latents may also provide added control over generating data with desired properties\cite{yingzhen2018disentangled}.
+		\item \textbf{Incorporation of Partial Knowledge of the Dynamical System:} Many dynamical systems of interest have partially known complexities. Some examples include the presence of interacting particles/agents (for e.g, bouncing balls in box or similar limbs of a robot) and switching dynamics (for e.g, for an agent in a maze environment, the transition dynamics is different when navigating on an obstacle free path from when colliding with walls). A desirable property of the model would be to incorporate these partially known characteristics in a principled manner in order to take advantage of the prior knowledge they present.
+	\end{itemize}
+	
+	\section{Related Approaches and Open Problems}
+	This section discusses the previous work and the open challenges in imbibing the  desirable characteristics outlined above in a model of sequential data.
+	
+	\begin{itemize}
+		\item \textbf{Incorporation of Latent Representation and Dynamics:} Inference in latent dynamical systems is a well studied problem. Classical approaches towards this include Kalman Filters and its variants\cite{kalman1960contributions, kalman1961new, wan2000unscented}. However, these approaches assume that the system dynamics are fully known, which limits their applicability. Recent methods for approximate inference through Sequential Monte Carlo (SMC) techniques \cite{doucet2001introduction} and Variational Inference \cite{bayer2014learning, chung2015recurrent, karl2016deep} have risen as a popular alternative to classical methods. These methods do not make any assumptions regarding the knowledge of the generative model; infact, the generative model can be learnt alongside inference. These methods, however, are plagued with limitations of their own. SMC methods for instance, trade smaller sample complexity for inference accuracy and are heavily reliant on the proposal distribution, while Variational Inference methods are often limited to factorized Gaussian distributions in the latent space. Recently however, approaches that combine and glean advantages of both methods have been proposed \cite{gu2015neural, naesseth2017variational}. However, providing a theoretically supported approximate inference model that maintains the delicate balance between inferring from the observations in addition to supporting the learning of transition dynamics remains a challenge for both approaches \cite{karl2016deep}.
+		\item \textbf{Uncertainty Modelling:} In 2011, PILCO \cite{deisenroth2011pilco} introduced probabilistic Gaussian Processes in sequence modelling as an alternative to deterministic Recurrent Neural Network based models that are often susceptible to model bias. An added benefit of this approach was that it was data-efficient and could learn from just a few trials. However, PILCO scales poorly to high dimensional observations and tasks that require more number of trials. Deep PILCO \cite{gal2016improving}, therefore, replaces Gaussian Processes with Bayesian Neural Networks (BNN) in order to scale well to high dimensional observations while still avoiding overfitting on small datasets similar to PILCO. Both variants, however, apply transitions in the observational space as opposed to having a latent dynamical system, the advantages of which have been highlighted in the previous section. Recently proposed latent dynamical architectures based on State Space Models on the other hand \cite{karl2016deep, krishnan2015deep}, are explicitly probabilistic (i.e they output distribution parameters) in the models for inference, transition dynamics and emission, thus being able to model both the aleatoric and epistemic uncertainties satisfactorily. Although they do not model weight uncertainty like BNNs do, introduction of weight uncertainty in form of dropout \cite{gal2016dropout} may be straightforward. It would be interesting to study the effect of this inclusion on the network's performance. 
+		\item \textbf{Probabilistic prediction in state-space far into the future:} While models like DVBF \cite{karl2016deep} have the ability to make long term predictions via a series of probabilistic one-step predictions, the prediction quality has been noted to degrade with increasing time. Recently proposed models \cite{tdvae, neuralpredbelief} take a look back at the Partially Observed Markov Decision Process (POMDP) literature and advocate the incorporation of belief states in order to alleviate this problem.
+		\item \textbf{Interpretable/Disentangled latent-space representation:} While disentanglement of latent states has been explored in the context of unsupervised modeling of non-temporal datasets \cite{higgins2017beta, kim2018disentangling}, there has been limited research towards modelling sequential data with disentangled latents. Recent works by Yinghzen and Mandt \cite{yingzhen2018disentangled} and Fraccaro et. al \cite{fraccaro2017disentangled} broach upon this subject by disentangling static and dynamic states by explicitly modelling the variables representing the content and the dynamics of the sequence separately. While this model demonstrated disentanglement in the static (applicable over all time steps) latents, it would also be beneficial to model disentanglement in the dynamic latents as well as transition parameters (somewhat accomplished via switching dynamics models - see next section). 
+		\item \textbf{Incorporation of Partial Knowledge of the Dynamical System:} The problem of structurally incorporating switching dynamics has been explored in many past and recent works \cite{fox2009nonparametric, linderman2016recurrent, becker-ehmck2019switching}. The task of modelling systems with interactive particles and/or agents with multiple co-dependent actuators has also recently been approached using graph neural networks \cite{kipf2018neural, sanchez2018graph} with some success. Both the explored approaches (with the exception of the work by Fox et al. \cite{fox2009nonparametric}), however, make assumptions regarding the knowledge/or the upper bound on number of transition functions/interacting particles; and in case of the paper by Sanchez et al. \cite{sanchez2018graph}, explicit knowledge of the structure of the agent. An approach towards dealing with  unknown number of interacting components may be found in non-parametric distributions. Similarly dense graph models can be explored in an attempt to model unknown nature connections between components.
+	\end{itemize}
+	
+	\section{Conclusion}
+	While research in the field of modelling and inference in Latent Dynamical Systems has come a long way, there still remain a lot of issues that challenge the practical applicability of these models to a complex and real dynamic environment. This proposal outlines the characteristics of a good general model for complex dynamic environments, the motivations for desiring them and discusses the challenges in imbibing them in learned models.
+	
+	\bibliography{bib}
+	\bibliographystyle{bib}
+	
+\end{document}

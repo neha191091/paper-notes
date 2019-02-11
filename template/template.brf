@@ -1,0 +1,27 @@
+\backcite {turner2010statistical}{{1}{1}{section.1}}
+\backcite {jayaraman2018time}{{1}{1}{section.1}}
+\backcite {xie2017neural}{{1}{1}{section.1}}
+\backcite {deisenroth2011pilco}{{1}{1}{section.1}}
+\backcite {atkeson1997comparison}{{1}{1}{section.1}}
+\backcite {karl2016deep, krishnan2015deep}{{1}{2}{section.2}}
+\backcite {gal2016uncertainty}{{1}{2}{section.2}}
+\backcite {higgins2017beta, kim2018disentangling}{{1}{2}{section.2}}
+\backcite {yingzhen2018disentangled}{{1}{2}{section.2}}
+\backcite {kalman1960contributions, kalman1961new, wan2000unscented}{{2}{3}{section.3}}
+\backcite {doucet2001introduction}{{2}{3}{section.3}}
+\backcite {bayer2014learning, chung2015recurrent, karl2016deep}{{2}{3}{section.3}}
+\backcite {gu2015neural, naesseth2017variational}{{2}{3}{section.3}}
+\backcite {karl2016deep}{{2}{3}{section.3}}
+\backcite {deisenroth2011pilco}{{2}{3}{section.3}}
+\backcite {gal2016improving}{{2}{3}{section.3}}
+\backcite {karl2016deep, krishnan2015deep}{{2}{3}{section.3}}
+\backcite {gal2016dropout}{{2}{3}{section.3}}
+\backcite {karl2016deep}{{2}{3}{section.3}}
+\backcite {tdvae, neuralpredbelief}{{2}{3}{section.3}}
+\backcite {higgins2017beta, kim2018disentangling}{{2}{3}{section.3}}
+\backcite {yingzhen2018disentangled}{{2}{3}{section.3}}
+\backcite {fraccaro2017disentangled}{{2}{3}{section.3}}
+\backcite {fox2009nonparametric, linderman2016recurrent, becker-ehmck2019switching}{{2}{3}{section.3}}
+\backcite {kipf2018neural, sanchez2018graph}{{2}{3}{section.3}}
+\backcite {fox2009nonparametric}{{2}{3}{section.3}}
+\backcite {sanchez2018graph}{{2}{3}{section.3}}

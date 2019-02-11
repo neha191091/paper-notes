@@ -1,0 +1,166 @@
+\begin{thebibliography}{10}\itemsep=-1pt
+
+\bibitem{atkeson1997comparison}
+C.~G. Atkeson and J.~C. Santamaria.
+\newblock A comparison of direct and model-based reinforcement learning.
+\newblock In {\em Robotics and Automation, 1997. Proceedings., 1997 IEEE
+  International Conference on}, volume~4, pages 3557--3564. IEEE, 1997.
+
+\bibitem{bayer2014learning}
+J.~Bayer and C.~Osendorfer.
+\newblock Learning stochastic recurrent networks.
+\newblock {\em arXiv preprint arXiv:1411.7610}, 2014.
+
+\bibitem{becker-ehmck2019switching}
+P.~Becker-Ehmck, J.~Peters, and P.~van~der Smagt.
+\newblock Switching linear dynamics for variational bayes filtering, 2019.
+
+\bibitem{chung2015recurrent}
+J.~Chung, K.~Kastner, L.~Dinh, K.~Goel, A.~C. Courville, and Y.~Bengio.
+\newblock A recurrent latent variable model for sequential data.
+\newblock In {\em Advances in neural information processing systems}, pages
+  2980--2988, 2015.
+
+\bibitem{deisenroth2011pilco}
+M.~Deisenroth and C.~E. Rasmussen.
+\newblock Pilco: A model-based and data-efficient approach to policy search.
+\newblock In {\em Proceedings of the 28th International Conference on machine
+  learning (ICML-11)}, pages 465--472, 2011.
+
+\bibitem{doucet2001introduction}
+A.~Doucet, N.~De~Freitas, and N.~Gordon.
+\newblock An introduction to sequential monte carlo methods.
+\newblock In {\em Sequential Monte Carlo methods in practice}, pages 3--14.
+  Springer, 2001.
+
+\bibitem{fox2009nonparametric}
+E.~Fox, E.~B. Sudderth, M.~I. Jordan, and A.~S. Willsky.
+\newblock Nonparametric bayesian learning of switching linear dynamical
+  systems.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  457--464, 2009.
+
+\bibitem{fraccaro2017disentangled}
+M.~Fraccaro, S.~Kamronn, U.~Paquet, and O.~Winther.
+\newblock A disentangled recognition and nonlinear dynamics model for
+  unsupervised learning.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  3601--3610, 2017.
+
+\bibitem{gal2016uncertainty}
+Y.~Gal.
+\newblock Uncertainty in deep learning.
+\newblock {\em University of Cambridge}, 2016.
+
+\bibitem{gal2016dropout}
+Y.~Gal and Z.~Ghahramani.
+\newblock Dropout as a bayesian approximation: Representing model uncertainty
+  in deep learning.
+\newblock In {\em international conference on machine learning}, pages
+  1050--1059, 2016.
+
+\bibitem{gal2016improving}
+Y.~Gal, R.~McAllister, and C.~E. Rasmussen.
+\newblock Improving pilco with bayesian neural network dynamics models.
+\newblock In {\em Data-Efficient Machine Learning workshop, ICML}, 2016.
+
+\bibitem{tdvae}
+K.~Gregor and F.~Besse.
+\newblock Temporal difference variational auto-encoder.
+\newblock {\em CoRR}, abs/1806.03107, 2018.
+
+\bibitem{gu2015neural}
+S.~S. Gu, Z.~Ghahramani, and R.~E. Turner.
+\newblock Neural adaptive sequential monte carlo.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  2629--2637, 2015.
+
+\bibitem{neuralpredbelief}
+Z.~D. Guo, M.~G. Azar, B.~Piot, B.~A. Pires, T.~Pohlen, and R.~Munos.
+\newblock Neural predictive belief representations.
+\newblock {\em CoRR}, abs/1811.06407, 2018.
+
+\bibitem{higgins2017beta}
+I.~Higgins, L.~Matthey, A.~Pal, C.~Burgess, X.~Glorot, M.~Botvinick,
+  S.~Mohamed, and A.~Lerchner.
+\newblock beta-vae: Learning basic visual concepts with a constrained
+  variational framework.
+\newblock In {\em International Conference on Learning Representations}, 2017.
+
+\bibitem{jayaraman2018time}
+D.~Jayaraman, F.~Ebert, A.~A. Efros, and S.~Levine.
+\newblock Time-agnostic prediction: Predicting predictable video frames.
+\newblock {\em arXiv preprint arXiv:1808.07784}, 2018.
+
+\bibitem{kalman1961new}
+R.~E. Kalman and R.~S. Bucy.
+\newblock New results in linear filtering and prediction theory.
+\newblock {\em Journal of basic engineering}, 83(1):95--108, 1961.
+
+\bibitem{kalman1960contributions}
+R.~E. Kalman et~al.
+\newblock Contributions to the theory of optimal control.
+\newblock {\em Bol. Soc. Mat. Mexicana}, 5(2):102--119, 1960.
+
+\bibitem{karl2016deep}
+M.~Karl, M.~Soelch, J.~Bayer, and P.~van~der Smagt.
+\newblock Deep variational bayes filters: Unsupervised learning of state space
+  models from raw data.
+\newblock {\em arXiv preprint arXiv:1605.06432}, 2016.
+
+\bibitem{kim2018disentangling}
+H.~Kim and A.~Mnih.
+\newblock Disentangling by factorising.
+\newblock {\em arXiv preprint arXiv:1802.05983}, 2018.
+
+\bibitem{kipf2018neural}
+T.~Kipf, E.~Fetaya, K.-C. Wang, M.~Welling, and R.~Zemel.
+\newblock Neural relational inference for interacting systems.
+\newblock {\em arXiv preprint arXiv:1802.04687}, 2018.
+
+\bibitem{krishnan2015deep}
+R.~G. Krishnan, U.~Shalit, and D.~Sontag.
+\newblock Deep kalman filters.
+\newblock {\em arXiv preprint arXiv:1511.05121}, 2015.
+
+\bibitem{linderman2016recurrent}
+S.~W. Linderman, A.~C. Miller, R.~P. Adams, D.~M. Blei, L.~Paninski, and M.~J.
+  Johnson.
+\newblock Recurrent switching linear dynamical systems.
+\newblock {\em arXiv preprint arXiv:1610.08466}, 2016.
+
+\bibitem{naesseth2017variational}
+C.~A. Naesseth, S.~W. Linderman, R.~Ranganath, and D.~M. Blei.
+\newblock Variational sequential monte carlo.
+\newblock {\em arXiv preprint arXiv:1705.11140}, 2017.
+
+\bibitem{sanchez2018graph}
+A.~Sanchez-Gonzalez, N.~Heess, J.~T. Springenberg, J.~Merel, M.~Riedmiller,
+  R.~Hadsell, and P.~Battaglia.
+\newblock Graph networks as learnable physics engines for inference and
+  control.
+\newblock {\em arXiv preprint arXiv:1806.01242}, 2018.
+
+\bibitem{turner2010statistical}
+R.~E. Turner.
+\newblock {\em Statistical models for natural sounds}.
+\newblock PhD thesis, UCL (University College London), 2010.
+
+\bibitem{wan2000unscented}
+E.~A. Wan and R.~Van Der~Merwe.
+\newblock The unscented kalman filter for nonlinear estimation.
+\newblock In {\em Adaptive Systems for Signal Processing, Communications, and
+  Control Symposium 2000. AS-SPCC. The IEEE 2000}, pages 153--158. Ieee, 2000.
+
+\bibitem{xie2017neural}
+Z.~Xie.
+\newblock Neural text generation: A practical guide.
+\newblock {\em arXiv preprint arXiv:1711.09534}, 2017.
+
+\bibitem{yingzhen2018disentangled}
+L.~Yingzhen and S.~Mandt.
+\newblock Disentangled sequential autoencoder.
+\newblock In {\em International Conference on Machine Learning}, pages
+  5656--5665, 2018.
+
+\end{thebibliography}
