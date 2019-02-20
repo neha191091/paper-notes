@@ -24,23 +24,45 @@
 
 \begin{document}
 	
-	\title{Differentiable Particle Filters: End-to-End Learning with Algorithmic Priors}
-	\author{Rico Jonschkowski \and Divyam Rastogi\and Oliver Brock}
-	\date{May 2018}
+	\title{Temporal Difference Variational Auto-encoder}
+	\author{Karol Gregor \and George Papamakarios \and Frederic Besse \and Lars Buesing \and Théophane Weber \and DeepMind}
+	\date{Jan 2019}
 	
 	\maketitle
 
 	\section{Motivation}
-	The architecture proposed in this work is motivated by the benefits of:
-	\begin{itemize}
-		\item \textbf{End-to-end learning} over learn the components of an architecture separately since it provides more generality, and
-		\item \textbf{Algorithmic Priors} in the context of end-to-end learning, since a naive application of the latter may lead to overfitting.
-	\end{itemize}
-	The authors cite here the success of \textbf{CNNs}, an algorithmic prior for end-to-end learning of architectures for image-based tasks like segmentation.
+	The authors propose that it is essential to incorporate the following characteristics in a model for dynamical systems:
+	\begin{enumerate}[label=\textbf{\arabic*},ref=\arabic*]
+		\item \textbf{Abstraction at the state level: } latent dynamical systems
+		\item \textbf{Belief Representation: } a deterministic coding compressing the observations up to time step $t$ through \emph{LSTMs}
+		\item \textbf{Jumpy State Predictions: }modeling $p(z_{t_2}|z_{t_2}), t_2>t_1 $ in the generative transitions \label{mot:jumpy}.
+	\end{enumerate}
+	
+	\subsection{Related Works - factorization of the posterior}
+	
+	In many related works for modeling dynamical systems, the approximate posterior distribution $q(z_{1:T}|x_{1:T})$ is factorized autoregressively as below:
+	
+	\begin{equation}
+	q(z_{1:T}|x_{1:T}) = \prod{q(z_t|z_{t-1}, \phi(x_{1:t}))}
+	\end{equation}
+	
+	Using this autoregressive decomposition, one can formulate the $L_{ELBO}$ as:
+	
+	\begin{equation}	
+	\begin{split}
+	\log p(x_{1:T}) = &\E_{z \sim q(z_{1:T}|x_{1:T})} \big[\sum_{t=1}^{T} \log p(x_t|z_t) + \\ &\log p(z_t|z_{t-1}) + \log q(z_t|z_{t-1},\phi(x_{1:t}))\big] 
+	\end{split} 
+	\end{equation}
+	
+	The authors claim that this is an issue since the uncertainty of the marginal posterior of $z_t$ could be leaked in the sample $z_{t-1}$. What I believe this means is, that basing the estimation of the next state $z_t$ on one sample of the previous state $z_{t-1}$ and hoping to capture all the information about the previous observations is not enough. For an accurate posterior estimation thus, either ancestral sampling is necessary (e.g through \emph{particle filters}) or we use \emph{belief states}.
 	
 	\section{Problem Statement}
 	
-	The goal we are working towards is estimating the state $z_[1:T]$ in a State Space Model: 
+	The goal we are working towards is:
+	 \begin{itemize}
+	 	\item Estimating the parameters of a  State Space Model \ref{fig:SSM}
+	 	\item Additionally, we want to estimate the posterior probability distribution over states $z_{1:T}$ given just the observations $x_{1:T}$ and (optional) actions $u_{1:T}$. 
+	 \end{itemize}
 	
 	%\includegraphics[width = 7.5cm, height = 4cm]{dlcv.png}
 	\begin{figure}[htbp]
@@ -73,7 +95,7 @@
 		% align the labels with and without indices.
 		
 		% The various elements are conveniently placed using a matrix:
-		\matrix[row sep=0.2cm,column sep=0.2cm] {
+		\matrix[row sep=0.05cm,column sep=0.05cm] {
 			% First line: States
 			\node (z_k-2) 		 {$\cdots$};      	   &
 			\node (z_k-1) [state]{$\mathbf{z}_{k-1}$}; &
@@ -136,98 +158,101 @@
 		\label{fig:SSM}
 	\end{figure}
 	
-	given just the observations $x_{1:T}$ and actions $u_{1:T}$. Essentially, what we want is a probability distribution over states at every time step $t$ (to account for uncertainty). We often encode this in the form of filtering distributions or beliefs:
-	\begin{equation}
-	bel{z_t} = p(z_t|x_{1:t}, u_{1:t})
+	\section{A Lowerbound to the Autoregressive Decomposition of $p(x_{1:T})$}
+	
+	Instead of a lower-bound on the likelihood of the complete data sequences, the authors propose a sum of lower-bounds on the factors of an autoregressive decomposition of $p(x_{1:T})$:
+	
+	\begin{equation}\label{eq:autoreg_elbo_1}
+	\begin{split}
+	\log p(x_{1:T}) &= \sum_{t=1}^{T} \log p(x_t|x_{<t}) \\
+	&\geq \sum_{t=1}^{T} \E_{z_{t-1}, z_t \sim q(z_{t-1}, z_t| x_{\leq t})} \big[\log p(x_t|z_{t-1}, z_t, x_{<t}) \\&+ \log p(z_{t-1}, z_t| x_{<t})- \log q(z_{t-1}, z_t| x_{\leq t})\big]
+	\end{split}
 	\end{equation}
 	
-	\section{Theoretical Background for solution}
+	With the markovian assumptions in place and by choosing the decomposition of the posterior as:
 	
-	\subsection{Bayes Filter: Algorithmic Priors for State Estimation in Robotics}
-	
-	The authors argue that the \textbf{Bayes Filter} is a suitable algorithmic prior for learning a model that can estimate the system state (for systems that follow a generative model like the one in Figure \ref{fig:SSM}).
-	
-	The Bayes Filter calculates the belief over states at each point of time using two steps iteratively over the whole sequence:
-	
-	\begin{itemize}
-		\item \textbf{Prediction:} This step predicts a distribution over the next state $z_{t}$ given the belief over the current state $z_{t-1}$. This is essentially done by calculating an expectation of the generative transition step $p(z_t|z_{t-1}, u_{t-1})$ w.r.t the belief over the current state:
-		\begin{equation}
-		bel(z_t) = \int{p(z_t|z_{t-1}, u_{t-1})}\overline{bel}(z_{t-1}) dz_{t-1}
-		\end{equation}
-		\item \textbf{Measurement:} This step updates the predicted belief $bel(z_t)$ to $\overline{bel}(z_{t})$ by incorporating the measurement $x_t$:
-		\begin{equation}
-		\overline{bel}(z_t) = \eta p(x_t|z_t)bel(z_t)
-		\end{equation}
-		where $\eta$ is the normalization constant ($p(x_t)$?)
-	\end{itemize}
-	
-	Essentially,
 	\begin{equation}
-	bel(z_t) = p(z_t|x_{1:t-1}) \text{, and} 
-	\end{equation}
-	\begin{equation}
-	\overline{bel}(z_t) = p(z_t|x_{1:t})
+	q(z_{t-1}, z_t| x_{\leq t}) = \underbrace{q(z_t| x_{\leq t})}_{\text{\color{red} belief}} \underbrace{q(z_{t-1}| z_t, x_{\leq t})}_{\text{\color{red} one-step smoothing}}
 	\end{equation}
 	
-	\subsection{Particle Filter}
-	Particle Filters are a class of Bayes Filters that \emph{approximate} the belief over states with several particles or samples ${z^{[1]}_t, z^{[2]}_t, ... z^{[N]}_t}$ that associated with corresponding weights ${w^{[1]}_t, w^{[2]}_t, ... w^{[N]}_t}$. The Bayes update steps in this context are:
+	we reformulate \ref{eq:autoreg_elbo_1} as:
 	
-	\begin{itemize}
-		\item \textbf{Prediction} Sample N particles using a proposal distribution $q(z_t)$ (usually taken to be the generative transition distribution - $p(z_t|z_{t-1})$):
-		\begin{equation}
-		{z^{[1]}_t, z^{[2]}_t, ... z^{[N]}_t} \sim q(z_t)
-		\end{equation}
-		
-		\item \textbf{Measurement} Calculate the un-normalized weights $\overline{w}$ for each of the particles using the emmision ($p(x_t|z_t)$), transition and the proposal distributions:
-		\begin{equation}
-		\overline{w}^{[i]}_t = \frac{p(x_t|z_t)p(z_t|z_{t-1})}{q(z_t)}
-		\end{equation}
-		Re-sample the N particles from a categorical distribution with parameters ${w^{[1]}_t, w^{[2]}_t, ... w^{[N]}_t}$, the normalized weights.  
-		
-	\end{itemize}
-	
-	\section{Method - DPF}
-	In line with their motivation for end-to-end learning, the authors propose Differentiable Particle Filters, in which one learns the parameters ($\theta$) of the functions for each of the components necessary for a particle filter:
-	\begin{itemize}
-		\item \textbf{Action Sampler $f$} creates a noisy action to inject uncertainty into the transition model:		
-			\begin{equation} \label{eq:dpf_as}
-			\hat{u_t} = u_t + f_{\theta}(u_t, \epsilon \sim \mathcal{N}(0,1))
-			\end{equation}
-		\item \textbf{Generative Transition Model $g$} predicts the next state given the current state and action:
-			\begin{equation} \label{eq:dpf_gp}
-			z_{t+1} = z_{t} + g_{\theta}(z_{t}, \hat{u_{t}})
-			\end{equation}
-		\item \textbf{Encoder $h$} encodes the current observation $x_t$ into a low dimensional encoding:
-			\begin{equation}
-			e_t = h(x_t)
-			\end{equation}
-		\item \textbf{Proposer $k$} predicts the state given the encoding:
-			\begin{equation}
-			z^{[i]}_t = k(e_t, \delta^{[i]} \sim B))
-			\end{equation}
-			where $\delta^{[i]}$ is a dropout vector sampled from a Bernoulli distribution. This is to induce noise while getting the N particles.
-		\item \textbf{Emmision $l$} weighs each particle based on the observation
-			\begin{equation} \label{eq:dpf_wts}
-			w^{[i]}_t = l(e_t, z_t)
-			\end{equation}
-	\end{itemize}
-	
-	The belief $bel(z_t)$ in this context is characterized by a set of particles and their corresponding weights, i.e:
-	\begin{equation}
-		bel(z_t) = \{ Z_t, W_t \} \text{, where } 
+	\begin{equation}\label{eq:autoreg_elbo_2}
+	\begin{split}
+	\log p(x_{1:T}) 
+	&\geq \sum_{t=1}^{T} \E_{z_{t-1}, z_t \sim q(z_{t-1}, z_t| x_{\leq t})} \big[\log p(x_t|z_t) 
+	\\&+ \log p(z_{t-1}| x_{\leq t-1})+ \log p(z_t| z_{t-1}) \\&- \log q(z_t| x_{\leq t}) - \log q(z_{t-1}| z_t, x_{\leq t})\big]
+	\end{split}
 	\end{equation}
-	\begin{equation*}
-		Z_t = \{z^{[i]}_t\}_{i=1}^N \text{ and } W_t = \{w^{[i]}_t\}_{i=1}^N
-	\end{equation*}
 	
-	The previous belief $bel(z_{t-1})$ is updated by the next set of particles which are either obtained by:
-	\begin{itemize}
-		\item \textbf{Prediction and Measurement update / Resampling}: \\
-			State particles are obtained using the action sampler \ref{eq:dpf_as} and the generative prediction model \ref{eq:dpf_gp}, followed by a resampling according to weights that are obtained from \ref{eq:dpf_wts}
-		\item \textbf{New particles from the proposer $k$}: \\
-			New particles are obtained by directly using the observation $x_t$ at time step $t$ and their corresponding weights are calculated according to equation \ref{eq:dpf_wts}
-	\end{itemize}
+	Taking belief as $b_t = \underbrace{f_\theta(x_t, b_{t-1})}_{\color{red} \text{hidden state of an RNN}}$
 	
-	\section{Training}
+	\begin{equation}\label{eq:autoreg_elbo_3}
+	\begin{split}
+	\log p(x_{1:T}) 
+	&\geq \sum_{t=1}^{T} \E_{\begin{subarray}
+		\centering
+		z_t \sim p_B(z_t| b_{t}) \\
+		z_{t-1} \sim q(z_{t-1}| z_t, b_t, b_{t-1})
+		\end{subarray}} \big[\log p(x_t|z_t) 
+	\\&+ \log p_B(z_{t-1}| b_{t-1})+ \log p(z_t| z_{t-1}) \\&- \log p_B(z_t| b_{t}) - \log q(z_{t-1}| z_t, b_t, b_{t-1})\big]
+	\end{split}
+	\end{equation}
+	
+	\mytodos{Check if these equations \ref{eq:autoreg_elbo_1}, \ref{eq:autoreg_elbo_2}, \ref{eq:autoreg_elbo_3} are correct}
+	
+	\subsection{Jumpy version}
+	As per the motivation in point \ref{mot:jumpy} in Section 1, the term wise loss is re-framed as:
+	
+	\begin{equation}\label{eq:jumpy_elbo}
+		\begin{split}
+		-\mathcal{L}_{t_1, t_2} &\geq \E_{\begin{subarray}
+			\centering
+			z_{t_2} \sim p_B(z_{t_2}| b_{t_2}) \\
+			z_{t_1} \sim q(z_{t_1}| z_{t_2}, b_{t_1}, b_{t_1})
+			\end{subarray}} \big[\log p(x_{t_2}|z_{t_2}) 
+		\\&+ \log p_B(z_{t_1}| b_{t_1})+ \log p(z_{t_2}| z_{t_1}) \\&- \log p_B(z_{t_2}| b_{t_2}) - \log q(z_{t_1}| z_{t_2}, b_{t_2}, b_{t_1})\big]
+		\end{split}
+	\end{equation}
+	
+	While it seems that the quantity $\mathcal{L}_{t_1, t_2}$ refers to $-\log p(x_t|x_{\leq t})$, this is not completely clear. \vspace{4mm}
+	\par For a schematic of this architecture, see Figure \ref{fig:TDVAE_jumpy} 
+	
+	The total loss is written by the authors as:
+	
+	\begin{equation}\label{eq:total_jumpy_elbo}
+	\begin{split}
+	-\mathcal{L} &= \mathbb{E}_S \big[\log p(x_{t_{1:N}})\big]\\
+	&\geq \mathbb{E}_S \big[\sum_{i} \E_{\begin{subarray}
+		\centering
+		z_{t_i} \sim p_B(z_{t_i}| b_{t_i}) \\
+		z_{t_{i-1}} \sim q(z_{t_{i-1}}| z_{t_i}, b_{t_{i-1}}, b_{t_{i-1}})
+		\end{subarray}} \big[\log p(x_{t_i}|z_{t_i}) 
+	\\&+ \log p_B(z_{t_{i-1}}| b_{t_{i-1}})+ \log p(z_{t_i}| z_{t_{i-1}}) \\&- \log p_B(z_{t_i}| b_{t_i}) - \log q(z_{t_{i-1}}| z_{t_i}, b_{t_i}, b_{t_{i-1}})\big]\big]
+	\end{split}
+	\end{equation}
+	
+	where $S$ is the sampling scheme for pairs.
+	 
+	\begin{figure*}[htbp]
+		\centering
+		\includegraphics[width = 16cm]{TD-VAE-schematic.png}
+		\caption{Schematic of TD-VAE's jumpy state model(This is from the original paper)}
+		\label{fig:TDVAE_jumpy}
+	\end{figure*}
+
+\section{Discussion and Questions}
+	\begin{enumerate}
+		\item \textbf{Possibly incorrect decomposition of term: }\\Earlier we decomposed the quantity $p(z_{t-1}, z_t| x_{< t})$ as $p_B(z_{t-1}|b_{t-1}) \text{ and } p(z_{t-1}|z_t)$ following the chain rule decomposition and the markov assumption. The jumpy loss follows the same pattern by decomposing $p(z_{t_1}, z_{t_2}| x_{< t_2})$ as $p_B(z_{t_1}|b_{t_1}) \text{ and } p(z_{t_2}|z_{t_1})$. But in the second term of the decomposition, we cannot remove $x_{< t_2}$ from the conditional!! If we are following the graphical model in Figure \ref{fig:SSM}, the markov assumptions do not dictate that.
+		\item \textbf{The possible effects of including the smoothing factor: }\\
+		The authors argue that the smoothing factor $q(z_{t_1}| z_{t_2}, b_{t_2}, b_{t_1})$ is of particular significance in learning correct transitions. \vspace{4mm} \\
+		They give the example of a closed box with either item A or B in it. At time $t_1$ the box is unopened, and at time $t_2$ the box has been opened and is known to have B in it. A good transition model of the box would postulate that its contents are unchanged. But sampling from just the belief at time $t_1$ wold give us item A $50\%$ of the time, which would tell us that in our transition the content of the box changes from A to B. Therefore, it's imperative to sample from the smoothing factor for the content at a previous time-step.
+		\item \textbf{No sampling from the actual transition: } \\
+		$z_{t_1}$ is sampled from the smoothing posterior and $z_{t_2}$ is sampled from the distribution of state given it's belief $p_B(z_{t_2}|b_{t_2})$. No parameters here are shared with the transition prior, which means the prior learns only from the KL term by the virtue of forcing the posterior to be closer to it. DVBF\cite{karl2016deep} has shown that this isn't enough to ensure that a good transition model is learned. One hypothesis about how this model works is that it relies on the smoothing factor - samples a particular future for $z_{t_2}$ from $p_B(z_{t_2}|b_{t_2})$ and makes $z_{t_1}$ stick to it .
+		\item Possible \emph{non-iid} sampling when we use S, because the pairs may be related.
+	\end{enumerate}
+
+	\bibliography{bib}
+	\bibliographystyle{bib}
 	
 \end{document}

@@ -42,6 +42,9 @@
 \usepackage{eso-pic}
 \usepackage{xspace}
 \usepackage{tikz}
+\usepackage{amsmath, amssymb}
+\usepackage{enumitem}
+\DeclareMathOperator*{\E}{\mathbb{E}}
 \usetikzlibrary{decorations.pathmorphing} % noisy shapes
 \usetikzlibrary{fit}					% fitting shapes to coordinates
 \usetikzlibrary{backgrounds}	% drawing the background after the foreground
@@ -237,6 +240,7 @@ Paper ID \cvprPaperID \fi
 \setcounter{totalnumber}{99}
 \setcounter{topnumber}{99}
 \setcounter{bottomnumber}{99}
+\newcommand\mytodos[1]{\textcolor{olive}{TODO: #1}}
 
 % Add a period to the end of an abbreviation unless there's one
 % already, then \xspace.
