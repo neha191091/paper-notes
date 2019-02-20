@@ -165,7 +165,8 @@
 	\begin{equation}\label{eq:autoreg_elbo_1}
 	\begin{split}
 	\log p(x_{1:T}) &= \sum_{t=1}^{T} \log p(x_t|x_{<t}) \\
-	&\geq \sum_{t=1}^{T} \E_{z_{t-1}, z_t \sim q(z_{t-1}, z_t| x_{\leq t})} \big[\log p(x_t|z_{t-1}, z_t, x_{<t}) \\&+ \log p(z_{t-1}, z_t| x_{<t})- \log q(z_{t-1}, z_t| x_{\leq t})\big]
+	&\geq \sum_{t=1}^{T} \E_{z_{t-1}, z_t \sim q(z_{t-1}, z_t| x_{\leq t})} \big[\log p(x_t|z_{t-1}, z_t, x_{<t}) \\&+ \log p(z_{t-1}, z_t| x_{<t})
+- \log q(z_{t-1}, z_t| x_{\leq t})\big]
 	\end{split}
 	\end{equation}
 	
@@ -181,7 +182,8 @@
 	\begin{split}
 	\log p(x_{1:T}) 
 	&\geq \sum_{t=1}^{T} \E_{z_{t-1}, z_t \sim q(z_{t-1}, z_t| x_{\leq t})} \big[\log p(x_t|z_t) 
-	\\&+ \log p(z_{t-1}| x_{\leq t-1})+ \log p(z_t| z_{t-1}) \\&- \log q(z_t| x_{\leq t}) - \log q(z_{t-1}| z_t, x_{\leq t})\big]
+	\\&+ \log p(z_{t-1}| x_{\leq t-1})
++ \log p(z_t| z_{t-1}) \\&- \log q(z_t| x_{\leq t}) - \log q(z_{t-1}| z_t, x_{\leq t})\big]
 	\end{split}
 	\end{equation}
 	
@@ -195,7 +197,8 @@
 		z_t \sim p_B(z_t| b_{t}) \\
 		z_{t-1} \sim q(z_{t-1}| z_t, b_t, b_{t-1})
 		\end{subarray}} \big[\log p(x_t|z_t) 
-	\\&+ \log p_B(z_{t-1}| b_{t-1})+ \log p(z_t| z_{t-1}) \\&- \log p_B(z_t| b_{t}) - \log q(z_{t-1}| z_t, b_t, b_{t-1})\big]
+	\\&+ \log p_B(z_{t-1}| b_{t-1})
++ \log p(z_t| z_{t-1}) \\&- \log p_B(z_t| b_{t}) - \log q(z_{t-1}| z_t, b_t, b_{t-1})\big]
 	\end{split}
 	\end{equation}
 	
@@ -211,7 +214,8 @@
 			z_{t_2} \sim p_B(z_{t_2}| b_{t_2}) \\
 			z_{t_1} \sim q(z_{t_1}| z_{t_2}, b_{t_1}, b_{t_1})
 			\end{subarray}} \big[\log p(x_{t_2}|z_{t_2}) 
-		\\&+ \log p_B(z_{t_1}| b_{t_1})+ \log p(z_{t_2}| z_{t_1}) \\&- \log p_B(z_{t_2}| b_{t_2}) - \log q(z_{t_1}| z_{t_2}, b_{t_2}, b_{t_1})\big]
+		\\&+ \log p_B(z_{t_1}| b_{t_1})
++ \log p(z_{t_2}| z_{t_1}) \\&- \log p_B(z_{t_2}| b_{t_2}) - \log q(z_{t_1}| z_{t_2}, b_{t_2}, b_{t_1})\big]
 		\end{split}
 	\end{equation}
 	
@@ -228,7 +232,8 @@
 		z_{t_i} \sim p_B(z_{t_i}| b_{t_i}) \\
 		z_{t_{i-1}} \sim q(z_{t_{i-1}}| z_{t_i}, b_{t_{i-1}}, b_{t_{i-1}})
 		\end{subarray}} \big[\log p(x_{t_i}|z_{t_i}) 
-	\\&+ \log p_B(z_{t_{i-1}}| b_{t_{i-1}})+ \log p(z_{t_i}| z_{t_{i-1}}) \\&- \log p_B(z_{t_i}| b_{t_i}) - \log q(z_{t_{i-1}}| z_{t_i}, b_{t_i}, b_{t_{i-1}})\big]\big]
+	\\&+ \log p_B(z_{t_{i-1}}| b_{t_{i-1}})
++ \log p(z_{t_i}| z_{t_{i-1}}) \\&- \log p_B(z_{t_i}| b_{t_i}) - \log q(z_{t_{i-1}}| z_{t_i}, b_{t_i}, b_{t_{i-1}})\big]\big]
 	\end{split}
 	\end{equation}
 	
@@ -250,6 +255,7 @@
 		\item \textbf{No sampling from the actual transition: } \\
 		$z_{t_1}$ is sampled from the smoothing posterior and $z_{t_2}$ is sampled from the distribution of state given it's belief $p_B(z_{t_2}|b_{t_2})$. No parameters here are shared with the transition prior, which means the prior learns only from the KL term by the virtue of forcing the posterior to be closer to it. DVBF\cite{karl2016deep} has shown that this isn't enough to ensure that a good transition model is learned. One hypothesis about how this model works is that it relies on the smoothing factor - samples a particular future for $z_{t_2}$ from $p_B(z_{t_2}|b_{t_2})$ and makes $z_{t_1}$ stick to it .
 		\item Possible \emph{non-iid} sampling when we use S, because the pairs may be related.
+		\item While the images in the result section look good, they only show that the transition learns to stay within a good manifold of latent space that can give good looking reconstructions, but it doesn't show that the actual learnt transitions are good too, no results in terms of application of controls
 	\end{enumerate}
 
 	\bibliography{bib}
